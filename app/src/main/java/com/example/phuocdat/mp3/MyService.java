@@ -25,7 +25,7 @@ public class MyService extends Service {
     public void setmServiceMediaPlay(MediaPlayer mServiceMediaPlay) {
         this.mServiceMediaPlay = mServiceMediaPlay;
     }
-    //2
+    //3
     public MediaPlayer getmServiceMediaPlay() {
         return mServiceMediaPlay;
     }
