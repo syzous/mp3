@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
@@ -22,12 +24,15 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class MainActivity extends AppCompatActivity {
     private SeekBar sb_progress_music;
     private TextView tv_time_start;
     private TextView tv_time_end;
     private ImageView im_play;
     private ImageView im_stop;
+    private CircleImageView im_song;
     private MyService myService;
     private boolean mBound=false;
     private Notification.Builder notificationBuilder;
@@ -56,7 +61,14 @@ public class MainActivity extends AppCompatActivity {
         tv_time_end = findViewById(R.id.tv_time_end);
         im_play = findViewById(R.id.img_play);
         im_stop = findViewById(R.id.img_stop);
+        im_song = findViewById(R.id.img_song);
+
         sb_progress_music = findViewById(R.id.sb_progress_music);
+        rotateAnimation=new RotateAnimation(0,360,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF,0.5f);
+        rotateAnimation.setDuration(5000);
+        rotateAnimation.setRepeatCount(Animation.INFINITE);
 
     }
     public void createMediaNotification(){
@@ -97,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e("MainActivity","onStart");
     }
 
-
+    RotateAnimation rotateAnimation;
     void onServiceConnected() {
         myService.createMusic(R.raw.nhac);
 
@@ -129,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myService.startMusic();
+                im_song.startAnimation(rotateAnimation);
                 showNotification();
 
             }
@@ -137,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myService.pauseMusic();
+                im_song.clearAnimation();
                 hideNotification();
             }
         };
