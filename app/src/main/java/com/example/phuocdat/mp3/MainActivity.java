@@ -108,7 +108,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                         if (myService.getmServiceMediaPlay() != null) {
-
+                            if (im_song.getAnimation()==null && myService.getmServiceMediaPlay().isPlaying())
+                            {
+                                im_song.setAnimation(rotateAnimation);
+                            }
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -143,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 im_stop.setOnClickListener(listener_stop);
                 sb_progress_music.setOnSeekBarChangeListener(listener_seekbar_progress);
             }
+
             Log.e("mConnnection", "Connected");
         }
 
@@ -213,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
         sb_progress_music = findViewById(R.id.sb_progress_music); // thanh trang thai cua bai hat
         if (myService!=null) sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
         // Set Image Clickable
-
     }
 
     @Override
@@ -234,7 +237,6 @@ public class MainActivity extends AppCompatActivity {
             tv_time_start.setText("0:00");
             int minuteDuration = song.getSongLong() / 60000;
             int secondDuration= (song.getSongLong() / 1000) % 60;
-
             tv_time_end.setText(minuteDuration + ":" + secondDuration);
         }
 
