@@ -22,6 +22,8 @@ import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
@@ -229,9 +231,10 @@ public class MainActivity extends AppCompatActivity {
             MediaPlayer mp=MediaPlayer.create(context,song.getSongID());
             song.setSongLong(mp.getDuration());
             mp.release();
-            tv_time_start.setText("0:0");
+            tv_time_start.setText("0:00");
             int minuteDuration = song.getSongLong() / 60000;
-            int secondDuration= song.getSongLong() % 60;
+            int secondDuration= (song.getSongLong() / 1000) % 60;
+
             tv_time_end.setText(minuteDuration + ":" + secondDuration);
         }
 
