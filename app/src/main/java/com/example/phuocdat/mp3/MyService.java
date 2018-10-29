@@ -16,41 +16,51 @@ import android.util.Log;
 import java.io.IOException;
 
 public class MyService extends Service {
+
+    private int currentSong;
     private Looper mServiceLooper;
     private HandlerService mServiceHandler;
-    private MediaPlayer mServiceMediaPlay;
-    private long currentTime;
+    private static MediaPlayer mServiceMediaPlay;
+
     private IBinder mServiceBinder= new LocalBinder();
+
+    public int getCurrentMinute(){
+        return mServiceMediaPlay.getCurrentPosition()/60000;
+    }
+    public int getCurrentSecond(){
+        return (mServiceMediaPlay.getCurrentPosition() / 1000) % 60;
+    }
+
 
     public void setmServiceMediaPlay(MediaPlayer mServiceMediaPlay) {
         this.mServiceMediaPlay = mServiceMediaPlay;
     }
-    //3
+
     public MediaPlayer getmServiceMediaPlay() {
         return mServiceMediaPlay;
     }
     public Service getService(){
         return  this;
     }
+
     public IBinder getmServiceBinder() {
         return mServiceBinder;
-    }
-
-    public class LocalBinder extends Binder{
-        MyService getService(){
-            return MyService.this;
-        }
     }
 
     private class HandlerService extends Handler {
         HandlerService(Looper looper) { super(looper); }
         @Override
         public void handleMessage(Message msg) {
-            Log.d("msg: ",msg+"");
-            //stopSelf(msg.arg1);
+            Log.e("msg: ",msg+"");
+
         }
     }
-    public int currentSong=R.raw.nhac;
+    public class LocalBinder extends Binder{
+        MyService getService(){
+            return MyService.this;
+        }
+    }
+
     public void createMusic(){
         if(mServiceMediaPlay == null) {
             mServiceMediaPlay=MediaPlayer.create(this,currentSong);
@@ -70,9 +80,9 @@ public class MyService extends Service {
             });
         }
     }
-    public void createMusic(int nameSong){
+    public void createMusic(int songName){
         if(mServiceMediaPlay == null) {
-            mServiceMediaPlay=MediaPlayer.create(this,nameSong);
+            mServiceMediaPlay=MediaPlayer.create(this,songName);
             mServiceMediaPlay.start();
             mServiceMediaPlay.seekTo(0);
             // Music Completed
@@ -88,28 +98,23 @@ public class MyService extends Service {
                 }
             });
         }
-        currentSong=nameSong;
+        currentSong=songName;
     }
     public void startMusic()
     {
 
         if (mServiceMediaPlay!=null && !mServiceMediaPlay.isPlaying()){ mServiceMediaPlay.start(); return; }
-        if (mServiceMediaPlay==null)
-        {
-            mServiceMediaPlay=MediaPlayer.create(this,currentSong);
-            mServiceMediaPlay.seekTo(0);
-            mServiceMediaPlay.start();
-        }
+//        if (mServiceMediaPlay==null)
+//        {
+//            mServiceMediaPlay=MediaPlayer.create(this,currentSong);
+//            mServiceMediaPlay.seekTo(0);
+//            mServiceMediaPlay.start();
+//        }
     }
     public void startMusic(int time)
     {
         if (mServiceMediaPlay!=null && !mServiceMediaPlay.isPlaying()){ mServiceMediaPlay.start(); mServiceMediaPlay.seekTo(time); return; }
-        if (mServiceMediaPlay==null)
-        {
-            mServiceMediaPlay=MediaPlayer.create(this,currentSong);
-            mServiceMediaPlay.seekTo(time);
-            mServiceMediaPlay.start();
-        }
+
     }
     public void pauseMusic()
     {
@@ -127,18 +132,19 @@ public class MyService extends Service {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("OnStartCommandService: ","Start");
+        Log.e("OnStartCommandService: ","Start");
 
         Message msg= mServiceHandler.obtainMessage();
         msg.arg1=startId;
         mServiceHandler.sendMessage(msg);
 
+        currentSong= intent.getIntExtra("songName",1);
         return START_NOT_STICKY;
     }
 
     @Override
     public void onCreate() {
-        Log.d("onCreateService: ","Start");
+        Log.e("onCreateService: ","Start");
         HandlerThread thread=new HandlerThread("Thread Handler",Thread.NORM_PRIORITY);
         thread.start();
 
@@ -154,9 +160,7 @@ public class MyService extends Service {
         return mServiceBinder;
     }
 
-    public long getCurrentTime() {
-        return currentTime;
-    }
+
 
     @Override
     public void onDestroy() {
@@ -167,7 +171,7 @@ public class MyService extends Service {
             mServiceMediaPlay.release();
             mServiceMediaPlay = null;
         }
-        stopSelf();
+
         Log.d("onDestroyService: ","Start");
         super.onDestroy();
     }
