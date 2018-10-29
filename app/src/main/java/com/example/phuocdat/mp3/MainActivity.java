@@ -40,12 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private Intent intentService;
     private Context context;
     private boolean mBound = false;
-
+    private Song song;
     View.OnClickListener listener_start = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             im_song.startAnimation(rotateAnimation);
-            Song song=new Song(R.raw.nhac,"Dung nhu thoi quen","JayKIll",true, 0);
             createMediaNotification(song);
             showNotification();
             if (myService.getmServiceMediaPlay()!=null)
@@ -222,6 +221,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
         intentService=new Intent(context,MyService.class);
+
+        // set song and set duration of the song
+        if (song==null)
+        {
+            song=new Song(R.raw.nhac,"Dung nhu thoi quen","JayKIll",true, 0);
+            MediaPlayer mp=MediaPlayer.create(context,song.getSongID());
+            song.setSongLong(mp.getDuration());
+            mp.release();
+            tv_time_start.setText("0:0");
+            int minuteDuration = song.getSongLong() / 60000;
+            int secondDuration= song.getSongLong() % 60;
+            tv_time_end.setText(minuteDuration + ":" + secondDuration);
+        }
+
         if (!isMyServiceRunning(intentService.getClass()))
         {
             startService(intentService);
