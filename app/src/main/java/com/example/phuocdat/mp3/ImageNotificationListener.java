@@ -33,6 +33,4 @@ public class ImageNotificationListener extends BroadcastReceiver{
             myService.stopSelf();
         }
     }
-
-
 }

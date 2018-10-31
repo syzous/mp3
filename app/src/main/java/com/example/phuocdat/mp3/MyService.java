@@ -160,8 +160,6 @@ public class MyService extends Service {
         return mServiceBinder;
     }
 
-
-
     @Override
     public void onDestroy() {
         Log.e("MyService","onDestroy()");

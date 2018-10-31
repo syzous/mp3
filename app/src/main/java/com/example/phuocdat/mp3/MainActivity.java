@@ -70,12 +70,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) { // User Dragging
-
                 progress = progress - (progress % 1000);
-
+                sb_progress_music.setProgress(progress);
                 if (myService.getmServiceMediaPlay() != null) { // if service is running
                     myService.getmServiceMediaPlay().seekTo(progress);
-                    sb_progress_music.setProgress(progress);
                     if (!myService.getmServiceMediaPlay().isPlaying()) { // if media Play is stopping
                         myService.stopMusic();
                         myService.startMusic();
