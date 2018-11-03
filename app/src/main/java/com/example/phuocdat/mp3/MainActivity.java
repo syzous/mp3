@@ -27,7 +27,7 @@ import java.io.IOException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
-    private MyServigice myService=null;
+    private MyService myService=null;
     private final int NOTIFICATION_MEDIA_PLAY = 100;
     private RotateAnimation rotateAnimation;
     private SeekBar sb_progress_music;
