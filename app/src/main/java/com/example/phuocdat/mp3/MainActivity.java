@@ -27,7 +27,7 @@ import java.io.IOException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
-    private static MyService myService=null;
+    private MyService myService=null;
     private final int NOTIFICATION_MEDIA_PLAY = 100;
     private RotateAnimation rotateAnimation;
     private SeekBar sb_progress_music;
@@ -44,9 +44,19 @@ public class MainActivity extends AppCompatActivity {
                         myService.startMusic();
                     }
                 }
-            } else {
-                Log.d("haha", "baba");
+
             }
+                if (myService.getmServiceMediaPlay() != null) {
+                    if (myService.getCurrentSecond() < 10) {
+                        tv_time_start.setText(myService.getCurrentMinute() + ":0" + myService.getCurrentSecond());
+                    } else {
+                        tv_time_start.setText(myService.getCurrentMinute() + ":" + myService.getCurrentSecond());
+                    }
+                    tv_time_end.setText(myService.getmServiceMediaPlay().getDuration() / 60000
+                            + ":"
+                            + (myService.getmServiceMediaPlay().getDuration() / 1000) % 60);
+                }
+
         }
 
         @Override
@@ -62,14 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView im_play;
     private ImageView im_stop;
     private CircleImageView im_song;
-    View.OnClickListener listener_stop = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            myService.pauseMusic();
-            im_song.setAnimation(null);
-            hideNotification();
-        }
-    };
     private RemoteViews remoteView;
     private Notification.Builder notificationBuilder;
     private NotificationManager notificationManager;
@@ -90,6 +92,14 @@ public class MainActivity extends AppCompatActivity {
             sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
         }
     };
+    View.OnClickListener listener_stop = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            myService.pauseMusic();
+            im_song.setAnimation(null);
+            hideNotification();
+        }
+    };
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -102,31 +112,11 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     while (myService != null) {
                         long timeStart = System.currentTimeMillis();
-
-
                         if (myService.getmServiceMediaPlay() != null) {
                             if (im_song.getAnimation() == null && myService.getmServiceMediaPlay().isPlaying()) {
                                 im_song.setAnimation(rotateAnimation);
                             }
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    int current = myService.getmServiceMediaPlay().getCurrentPosition();
-                                    sb_progress_music.setProgress(current);
-                                    Log.d("current: ", "" + current);
-                                    int minute = myService.getCurrentMinute();
-                                    int second = myService.getCurrentSecond();
-                                    if (second < 10) {
-                                        tv_time_start.setText(minute + ":0" + second);
-                                    } else {
-                                        tv_time_start.setText(minute + ":" + second);
-                                    }
-                                    int minuteDuration = myService.getmServiceMediaPlay().getDuration() / 60000;
-                                    int secondDuration = (myService.getmServiceMediaPlay().getDuration() / 1000) % 60;
-                                    tv_time_end.setText(minuteDuration + ":" + secondDuration);
-
-                                }
-                            });
+                            sb_progress_music.setProgress(myService.getmServiceMediaPlay().getCurrentPosition());
                         }
                         try {
                             Thread.sleep(1000 - (System.currentTimeMillis() - timeStart));
@@ -148,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBound = false;
+            //mBound = false;
             Log.e("mConnnection", "Disconnected");
         }
     };
@@ -211,10 +201,11 @@ public class MainActivity extends AppCompatActivity {
         rotateAnimation.setDuration(5000);
         rotateAnimation.setRepeatCount(Animation.INFINITE);
 
-        sb_progress_music = findViewById(R.id.sb_progress_music); // thanh trang thai cua bai hat
-        if (myService != null) {
-            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
-        }
+        sb_progress_music = findViewById(R.id.sb_progress_music);
+        // thanh trang thai cua bai hat
+//        if (myService != null) {
+//            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
+//        }
         // Set Image Clickable
     }
 
@@ -262,8 +253,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e("MainActivity", "onDestroy");
 //        if (myService!=null) myService.setmServiceMediaPlay(null);
 //        myService = null;
-        unbindService(mConnection);
-        mBound = false;
+       unbindService(mConnection);
 //        if (isMyServiceRunning(MyService.class)) stopService(new Intent(this,MyService.class));
         super.onDestroy();
     }
