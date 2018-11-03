@@ -27,7 +27,7 @@ import java.io.IOException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
-    private MyService myService=null;
+    private MyServigice myService=null;
     private final int NOTIFICATION_MEDIA_PLAY = 100;
     private RotateAnimation rotateAnimation;
     private SeekBar sb_progress_music;
@@ -127,11 +127,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }).start();
-            if (mBound == true) {
-                im_play.setOnClickListener(listener_start);
-                im_stop.setOnClickListener(listener_stop);
-                sb_progress_music.setOnSeekBarChangeListener(listener_seekbar_progress);
-            }
 
             Log.e("mConnnection", "Connected");
         }
@@ -202,6 +197,12 @@ public class MainActivity extends AppCompatActivity {
         rotateAnimation.setRepeatCount(Animation.INFINITE);
 
         sb_progress_music = findViewById(R.id.sb_progress_music);
+        if (mBound == true) {
+            im_play.setOnClickListener(listener_start);
+            im_stop.setOnClickListener(listener_stop);
+            sb_progress_music.setOnSeekBarChangeListener(listener_seekbar_progress);
+        }
+
         // thanh trang thai cua bai hat
 //        if (myService != null) {
 //            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
