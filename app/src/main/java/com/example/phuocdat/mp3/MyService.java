@@ -21,8 +21,8 @@ public class MyService extends Service {
     private Looper mServiceLooper;
     private HandlerService mServiceHandler;
     private static MediaPlayer mServiceMediaPlay;
-
     private IBinder mServiceBinder= new LocalBinder();
+
 
     public int getCurrentMinute(){
         return mServiceMediaPlay.getCurrentPosition()/60000;

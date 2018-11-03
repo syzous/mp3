@@ -27,50 +27,15 @@ import java.io.IOException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
+    private static MyService myService=null;
     private final int NOTIFICATION_MEDIA_PLAY = 100;
     private RotateAnimation rotateAnimation;
     private SeekBar sb_progress_music;
-    private TextView tv_time_start;
-    private TextView tv_time_end;
-    private ImageView im_play;
-    private ImageView im_stop;
-    private CircleImageView im_song;
-    private RemoteViews remoteView;
-    private Notification.Builder notificationBuilder;
-    private NotificationManager notificationManager;
-    private static MyService myService;
-    private Intent intentService;
-    private Context context;
-    private boolean mBound = false;
-    private Song song;
-    View.OnClickListener listener_start = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            im_song.startAnimation(rotateAnimation);
-            createMediaNotification(song);
-            showNotification();
-            if (myService.getmServiceMediaPlay()!=null)
-                myService.startMusic();
-            else
-                myService.createMusic(song.getSongID());
-            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
-        }
-    };
-
-    View.OnClickListener listener_stop = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            myService.pauseMusic();
-            im_song.setAnimation(null);
-            hideNotification();
-        }
-    };
-
     SeekBar.OnSeekBarChangeListener listener_seekbar_progress = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) { // User Dragging
-                progress = progress - (progress % 1000);
+                progress = progress - (progress % 1000);// lam tron so milisecond 7234 -> 7000
                 sb_progress_music.setProgress(progress);
                 if (myService.getmServiceMediaPlay() != null) { // if service is running
                     myService.getmServiceMediaPlay().seekTo(progress);
@@ -79,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
                         myService.startMusic();
                     }
                 }
+            } else {
+                Log.d("haha", "baba");
             }
         }
 
@@ -90,7 +57,39 @@ public class MainActivity extends AppCompatActivity {
         public void onStopTrackingTouch(SeekBar seekBar) {
         }
     };
-
+    private TextView tv_time_start;
+    private TextView tv_time_end;
+    private ImageView im_play;
+    private ImageView im_stop;
+    private CircleImageView im_song;
+    View.OnClickListener listener_stop = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            myService.pauseMusic();
+            im_song.setAnimation(null);
+            hideNotification();
+        }
+    };
+    private RemoteViews remoteView;
+    private Notification.Builder notificationBuilder;
+    private NotificationManager notificationManager;
+    private Intent intentService;
+    private Context context;
+    private boolean mBound = false;
+    private Song song;
+    View.OnClickListener listener_start = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            im_song.startAnimation(rotateAnimation);
+            createMediaNotification(song);
+            showNotification();
+            if (myService.getmServiceMediaPlay() != null)
+                myService.startMusic();
+            else
+                myService.createMusic(song.getSongID());
+            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
+        }
+    };
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -106,8 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                         if (myService.getmServiceMediaPlay() != null) {
-                            if (im_song.getAnimation()==null && myService.getmServiceMediaPlay().isPlaying())
-                            {
+                            if (im_song.getAnimation() == null && myService.getmServiceMediaPlay().isPlaying()) {
                                 im_song.setAnimation(rotateAnimation);
                             }
                             runOnUiThread(new Runnable() {
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                                 public void run() {
                                     int current = myService.getmServiceMediaPlay().getCurrentPosition();
                                     sb_progress_music.setProgress(current);
-                                    Log.d("current: ",""+current);
+                                    Log.d("current: ", "" + current);
                                     int minute = myService.getCurrentMinute();
                                     int second = myService.getCurrentSecond();
                                     if (second < 10) {
@@ -124,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                                         tv_time_start.setText(minute + ":" + second);
                                     }
                                     int minuteDuration = myService.getmServiceMediaPlay().getDuration() / 60000;
-                                    int secondDuration= (myService.getmServiceMediaPlay().getDuration() / 1000) % 60;
+                                    int secondDuration = (myService.getmServiceMediaPlay().getDuration() / 1000) % 60;
                                     tv_time_end.setText(minuteDuration + ":" + secondDuration);
 
                                 }
@@ -139,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }).start();
-            if (mBound==true) {
+            if (mBound == true) {
                 im_play.setOnClickListener(listener_start);
                 im_stop.setOnClickListener(listener_stop);
                 sb_progress_music.setOnSeekBarChangeListener(listener_seekbar_progress);
@@ -156,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void onServiceConnected() {
-        Log.e("onServiceConnected","start");
+        Log.e("onServiceConnected", "start");
         // cach 2
 //        final Handler handler = new Handler();
 //        handler.postDelayed(new Runnable() {
@@ -199,12 +197,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initView() {
-        context=getApplicationContext();
+        context = getApplicationContext();
         im_song = findViewById(R.id.img_song); // hinh bai hat
         tv_time_start = findViewById(R.id.tv_time_start); // thoi gian bat dau
         tv_time_end = findViewById(R.id.tv_time_end); /// thoi gian ket thuc
         im_play = findViewById(R.id.img_play); /// nut play
         im_stop = findViewById(R.id.img_stop); /// nut stop
+
         rotateAnimation = new RotateAnimation(0, 360, // su kien xoay
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f);
@@ -213,7 +212,9 @@ public class MainActivity extends AppCompatActivity {
         rotateAnimation.setRepeatCount(Animation.INFINITE);
 
         sb_progress_music = findViewById(R.id.sb_progress_music); // thanh trang thai cua bai hat
-        if (myService!=null) sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
+        if (myService != null) {
+            sb_progress_music.setMax(myService.getmServiceMediaPlay().getDuration());
+        }
         // Set Image Clickable
     }
 
@@ -223,26 +224,24 @@ public class MainActivity extends AppCompatActivity {
         Log.e("MainActivity", "onCreate");
         setContentView(R.layout.activity_main);
         initView();
-        intentService=new Intent(context,MyService.class);
+        intentService = new Intent(context, MyService.class);
 
         // set song and set duration of the song
-        if (song==null)
-        {
-            song=new Song(R.raw.nhac,"Dung nhu thoi quen","JayKIll",true, 0);
-            MediaPlayer mp=MediaPlayer.create(context,song.getSongID());
+        if (song == null) {
+            song = new Song(R.raw.nhac, "Dung nhu thoi quen", "JayKIll", true, 0);
+            MediaPlayer mp = MediaPlayer.create(context, song.getSongID());
             song.setSongLong(mp.getDuration());
             mp.release();
             tv_time_start.setText("0:00");
             int minuteDuration = song.getSongLong() / 60000;
-            int secondDuration= (song.getSongLong() / 1000) % 60;
+            int secondDuration = (song.getSongLong() / 1000) % 60;
             tv_time_end.setText(minuteDuration + ":" + secondDuration);
         }
 
-        if (!isMyServiceRunning(intentService.getClass()))
-        {
+        if (!isMyServiceRunning(intentService.getClass())) {
             startService(intentService);
             bindService(intentService, mConnection, BIND_AUTO_CREATE);
-            intentService.putExtra("nameSong",R.raw.nhac);
+            intentService.putExtra("nameSong", R.raw.nhac);
         }
     }
 
